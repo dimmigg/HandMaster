@@ -20,14 +20,21 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Category</a>
+                        <li class="nav-шеуь">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ApplicationType" asp-action="Index">Application Type</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Товары</a>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                                Управление контеном
+                            </a>
+                            <ul class="dropdown-menu">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Категории</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ApplicationType" asp-action="Index">Апптайпы Type</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Товары</a>
+                                <div class="dropdown-divider"></div>
+                                
+                            </ul>
                         </li>
                     </ul>
                 </div>
