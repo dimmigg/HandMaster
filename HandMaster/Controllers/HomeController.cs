@@ -1,7 +1,7 @@
-﻿using HandMaster.Data;
-using HandMaster.Models;
-using HandMaster.Models.ViewModels;
-using HandMaster.Utility;
+﻿using HandMaster_DataAccess;
+using HandMaster_Models;
+using HandMaster_Models.ViewModels;
+using HandMaster_Utility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

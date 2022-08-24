@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<Product> 
+@using HandMaster_Utility;
 @if(Model.Any())
 {
 <form method="post">
@@ -7,7 +8,7 @@
         <div class="container row">
             <div class="col -8">
                 <div class="card mt-4">
-                    <div class="card-header bg-dark text-light ml-0 row container">
+                    <div class="card-header bg-dark text-light ms-0 row container">
                         <div class="col-6">
                             <i class="fa fa-shopping-cart"></i> &nbsp;
                             Shopping Cart

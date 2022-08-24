@@ -1,5 +1,5 @@
-using HandMaster.Data;
-using HandMaster.Utility;
+using HandMaster_DataAccess;
+using HandMaster_Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
