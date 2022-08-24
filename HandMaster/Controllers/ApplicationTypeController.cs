@@ -1,11 +1,14 @@
 ﻿using HandMaster.Data;
 using HandMaster.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 
 namespace HandMaster.Controllers
 {
+    [Authorize(Roles = WC.AdminRole)]
     public class ApplicationTypeController : Controller
     {
         private readonly ApplicationDbContext _db;

@@ -28,7 +28,8 @@
                         <li class="nav-шеуь">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
-                        
+                        @if(User.IsInRole(WC.AdminRole))
+                        {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                 Управление контеном
@@ -41,6 +42,7 @@
                                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Создать админ пользователя</a>
                             </ul>
                         </li>
+                        }
                         <li>
                             @if (HttpContextAccessor.HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart) != null)
                                 {
