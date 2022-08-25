@@ -1,4 +1,5 @@
 ﻿using HandMaster_DataAccess;
+using HandMaster_DataAccess.Repository.IRepository;
 using HandMaster_Models;
 using HandMaster_Utility;
 using Microsoft.AspNetCore.Authorization;
@@ -12,14 +13,14 @@ namespace HandMaster.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext dp)
+        private readonly ICategoryRepository _catRepo;
+        public CategoryController(ICategoryRepository catRepo)
         {
-            _db = dp;
+            _catRepo = catRepo;
         }
         public IActionResult Index()
         {
-            IEnumerable<Category> objList = _db.Category;
+            IEnumerable<Category> objList = _catRepo.GetAll();
             return View(objList);
         }
 
@@ -34,8 +35,8 @@ namespace HandMaster.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Category.Add(cat);
-                _db.SaveChanges();
+                _catRepo.Add(cat);
+                _catRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(cat);
@@ -45,7 +46,7 @@ namespace HandMaster.Controllers
         {
             if (id == null || id == 0)
                 return NotFound();
-            var cat = _db.Category.Find(id);
+            var cat = _catRepo.Find(id.GetValueOrDefault());
             if (cat == null)
                 return NotFound();
 
@@ -57,8 +58,8 @@ namespace HandMaster.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Category.Update(cat);
-                _db.SaveChanges();
+                _catRepo.Update(cat);
+                _catRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(cat);
@@ -68,7 +69,7 @@ namespace HandMaster.Controllers
         {
             if (id == null || id == 0)
                 return NotFound();
-            var cat = _db.Category.Find(id);
+            var cat = _catRepo.Find(id.GetValueOrDefault());
             if (cat == null)
                 return NotFound();
 
@@ -77,15 +78,12 @@ namespace HandMaster.Controllers
         [HttpPost]
         public IActionResult DeletePost(int? categoryId)
         {
-            var cat = _db.Category.Find(categoryId);
+            var cat = _catRepo.Find(categoryId.GetValueOrDefault());
             if (cat == null)
                 return NotFound();
-
-
-            _db.Category.Remove(cat);
-            _db.SaveChanges();
+            _catRepo.Remove(cat);
+            _catRepo.Save();
             return RedirectToAction("Index");
         }
-
     }
 }

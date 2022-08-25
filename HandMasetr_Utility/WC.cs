@@ -10,5 +10,8 @@
         
         public const string EmailAdmin = "dimk64@yahoo.com";
 
+        public const string CategoryName = "Category";
+        public const string ApplicationTypeName = "ApplicationType";
+
     }
 }

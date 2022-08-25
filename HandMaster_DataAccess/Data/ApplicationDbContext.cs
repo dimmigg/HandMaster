@@ -17,3 +17,4 @@ namespace HandMaster_DataAccess
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     }
 }
+ 

@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HandMasetr_Utility\HandMaster_Utility.csproj" />
     <ProjectReference Include="..\HandMaster_Models\HandMaster_Models.csproj" />
   </ItemGroup>
 

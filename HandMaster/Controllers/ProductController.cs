@@ -1,4 +1,5 @@
 ﻿using HandMaster_DataAccess;
+using HandMaster_DataAccess.Repository.IRepository;
 using HandMaster_Models;
 using HandMaster_Models.ViewModels;
 using HandMaster_Utility;
@@ -18,16 +19,16 @@ namespace HandMaster.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class ProductController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IProductRepository _prodRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductController(ApplicationDbContext dp, IWebHostEnvironment webHostEnvironment)
+        public ProductController(IProductRepository prodRepo, IWebHostEnvironment webHostEnvironment)
         {
-            _db = dp;
+            _prodRepo = prodRepo;
             _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
-            IEnumerable<Product> objList = _db.Product.Include(x => x.Category).Include(x => x.ApplicationType);
+            IEnumerable<Product> objList = _prodRepo.GetAll(includeProperties: "Category,ApplicationType");
 
             //foreach(var obj in objList)
             //{
@@ -54,16 +55,8 @@ namespace HandMaster.Controllers
             ProductVM productVM = new ProductVM()
             {
                 Product = new Product(),
-                CategorySelectList = _db.Category.Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.CategoryId.ToString()
-                }),
-                ApplicationTypeSelectList = _db.ApplicationType.Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.Id.ToString()
-                })
+                CategorySelectList = _prodRepo.GetAllDropDownList(WC.CategoryName),
+                ApplicationTypeSelectList = _prodRepo.GetAllDropDownList(WC.ApplicationTypeName),
             };
             if (id == null)
             {
@@ -71,7 +64,7 @@ namespace HandMaster.Controllers
             }
             else
             {
-                productVM.Product = _db.Product.Find(id);
+                productVM.Product = _prodRepo.Find(id.GetValueOrDefault());
                 if(productVM.Product == null)
                 {
                     return NotFound();
@@ -101,12 +94,12 @@ namespace HandMaster.Controllers
 
                     productVM.Product.Image = fileName + extension;
 
-                    _db.Product.Add(productVM.Product);
+                    _prodRepo.Add(productVM.Product);
                     
                 }
                 else
                 {
-                    var objFromDb = _db.Product.AsNoTracking().FirstOrDefault(x => x.Id == productVM.Product.Id);
+                    var objFromDb = _prodRepo.FirstOrDefault(x => x.Id == productVM.Product.Id, isTracking: false);
                     if(files.Count > 0)
                     {
                         string upload = webRootPath + WC.ImagePath;
@@ -128,22 +121,13 @@ namespace HandMaster.Controllers
                     {
                         productVM.Product.Image = objFromDb.Image;
                     }
-                    _db.Product.Update(productVM.Product);
+                    _prodRepo.Update(productVM.Product);
                 }
-                _db.SaveChanges();
+                _prodRepo.Save();
                 return RedirectToAction("Index");
             }
-            productVM.CategorySelectList = _db.Category.Select(i => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.CategoryId.ToString()
-            });
-
-            productVM.ApplicationTypeSelectList = _db.ApplicationType.Select(i => new SelectListItem
-            {
-                Text = i.Name,
-                Value = i.Id.ToString()
-            });
+            productVM.CategorySelectList = _prodRepo.GetAllDropDownList(WC.CategoryName);
+            productVM.ApplicationTypeSelectList = _prodRepo.GetAllDropDownList(WC.ApplicationTypeName);
             return View(productVM);
         }
 
@@ -151,7 +135,7 @@ namespace HandMaster.Controllers
         {
             if (id == null || id == 0)
                 return NotFound();
-            var product = _db.Product.Include(x => x.Category).Include(x => x.ApplicationType).FirstOrDefault(x => x.Id == id);
+            var product = _prodRepo.FirstOrDefault(x => x.Id == id, includeProperties:"Category,ApplicationType");
 
             if (product == null)
                 return NotFound();
@@ -161,7 +145,7 @@ namespace HandMaster.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePost(int? id)
         {
-            var product = _db.Product.Find(id);
+            var product = _prodRepo.Find(id.GetValueOrDefault());
             if (product == null)
                 return NotFound();
 
@@ -170,8 +154,8 @@ namespace HandMaster.Controllers
             if (System.IO.File.Exists(oldFile))
                 System.IO.File.Delete(oldFile);
 
-            _db.Product.Remove(product);
-            _db.SaveChanges();
+            _prodRepo.Remove(product);
+            _prodRepo.Save();
             return RedirectToAction("Index");
         }
 

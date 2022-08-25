@@ -1,4 +1,6 @@
 using HandMaster_DataAccess;
+using HandMaster_DataAccess.Repository;
+using HandMaster_DataAccess.Repository.IRepository;
 using HandMaster_Utility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,7 +38,10 @@ namespace HandMaster
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddDefaultTokenProviders().AddDefaultUI()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            //services.AddTransient<IEmailSender, EmailSender>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IApplicationTypeRepository, ApplicationTypeRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddHttpContextAccessor();
             services.AddSession(options =>
             {

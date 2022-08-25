@@ -1,4 +1,5 @@
 ﻿using HandMaster_DataAccess;
+using HandMaster_DataAccess.Repository.IRepository;
 using HandMaster_Models;
 using HandMaster_Utility;
 using Microsoft.AspNetCore.Authorization;
@@ -12,14 +13,14 @@ namespace HandMaster.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class ApplicationTypeController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public ApplicationTypeController(ApplicationDbContext dp)
+        private readonly IApplicationTypeRepository _appTypeRepo;
+        public ApplicationTypeController(IApplicationTypeRepository appTypeRepo)
         {
-            _db = dp;
+            _appTypeRepo = appTypeRepo;
         }
         public IActionResult Index()
         {
-            IEnumerable<ApplicationType> objList = _db.ApplicationType;
+            IEnumerable<ApplicationType> objList = _appTypeRepo.GetAll();
             return View(objList);
         }
 
@@ -34,8 +35,8 @@ namespace HandMaster.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.ApplicationType.Add(app);
-                _db.SaveChanges();
+                _appTypeRepo.Add(app);
+                _appTypeRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(app);
@@ -45,7 +46,7 @@ namespace HandMaster.Controllers
         {
             if (id == null || id == 0)
                 return NotFound();
-            var app = _db.ApplicationType.Find(id);
+            var app = _appTypeRepo.Find(id.GetValueOrDefault());
             if (app == null)
                 return NotFound();
 
@@ -57,8 +58,8 @@ namespace HandMaster.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.ApplicationType.Update(app);
-                _db.SaveChanges();
+                _appTypeRepo.Update(app);
+                _appTypeRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(app);
@@ -68,7 +69,7 @@ namespace HandMaster.Controllers
         {
             if (id == null || id == 0)
                 return NotFound();
-            var cat = _db.ApplicationType.Find(id);
+            var cat = _appTypeRepo.Find(id.GetValueOrDefault());
             if (cat == null)
                 return NotFound();
 
@@ -77,13 +78,13 @@ namespace HandMaster.Controllers
         [HttpPost]
         public IActionResult DeletePost(int? id)
         {
-            var app = _db.ApplicationType.Find(id);
+            var app = _appTypeRepo.Find(id.GetValueOrDefault());
             if (app == null)
                 return NotFound();
 
 
-            _db.ApplicationType.Remove(app);
-            _db.SaveChanges();
+            _appTypeRepo.Remove(app);
+            _appTypeRepo.Save();
             return RedirectToAction("Index");
         }
 
