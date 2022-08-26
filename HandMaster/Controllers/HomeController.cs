@@ -64,7 +64,7 @@ namespace HandMaster.Controllers
         }
 
         [HttpPost, ActionName("Details")]
-        public IActionResult DetailsPost(int id)
+        public IActionResult DetailsPost(int id, DetailsVM detailsVM)
         {
             List<ShoppingCart> shoppingCartsList = new List<ShoppingCart>();
             if(HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) != null 
@@ -72,7 +72,7 @@ namespace HandMaster.Controllers
             {
                 shoppingCartsList = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);
             }
-            shoppingCartsList.Add(new ShoppingCart { ProductId = id });
+            shoppingCartsList.Add(new ShoppingCart { ProductId = id, SqFt = detailsVM.Product.TempSqFt});
             HttpContext.Session.Set(WC.SessionCart, shoppingCartsList);
             TempData[WC.Success] = "Товар добавлен в корзину";
             return RedirectToAction(nameof(Index));
