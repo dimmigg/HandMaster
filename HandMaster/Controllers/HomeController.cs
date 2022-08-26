@@ -74,6 +74,7 @@ namespace HandMaster.Controllers
             }
             shoppingCartsList.Add(new ShoppingCart { ProductId = id });
             HttpContext.Session.Set(WC.SessionCart, shoppingCartsList);
+            TempData[WC.Success] = "Товар добавлен в корзину";
             return RedirectToAction(nameof(Index));
         }
 
@@ -93,6 +94,7 @@ namespace HandMaster.Controllers
             }
             
             HttpContext.Session.Set(WC.SessionCart, shoppingCartsList);
+            TempData[WC.Success] = "Товар удален из корзины";
             return RedirectToAction(nameof(Index));
         }
 

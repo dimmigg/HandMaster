@@ -37,8 +37,10 @@ namespace HandMaster.Controllers
             {
                 _appTypeRepo.Add(app);
                 _appTypeRepo.Save();
+                TempData[WC.Success] = "Апптайп успешно добавлен";
                 return RedirectToAction("Index");
             }
+            TempData[WC.Error] = "Произошла непредвиденная ошибка";
             return View(app);
         }
 
@@ -60,8 +62,10 @@ namespace HandMaster.Controllers
             {
                 _appTypeRepo.Update(app);
                 _appTypeRepo.Save();
+                TempData[WC.Success] = "Апптайп успешно отредактирован";
                 return RedirectToAction("Index");
             }
+            TempData[WC.Error] = "Произошла непредвиденная ошибка";
             return View(app);
         }
 
@@ -85,6 +89,7 @@ namespace HandMaster.Controllers
 
             _appTypeRepo.Remove(app);
             _appTypeRepo.Save();
+            TempData[WC.Success] = "Апптайп успешно удален";
             return RedirectToAction("Index");
         }
 

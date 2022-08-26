@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace HandMaster.Controllers
 {
-    [Authorize(WC.AdminRole)]
+    [Authorize(Roles = WC.AdminRole)]
     public class InquiryController : Controller
     {
         private readonly IInquiryHeaderRepository _inqHRepo;
@@ -72,6 +72,7 @@ namespace HandMaster.Controllers
             _inqHRepo.Remove(inquiryHeader);
             _inqHRepo.Save();
 
+            TempData[WC.Success] = "Данные о заказе удалены";
             return RedirectToAction(nameof(Index));
         }
 

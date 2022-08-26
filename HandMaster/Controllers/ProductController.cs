@@ -95,7 +95,7 @@ namespace HandMaster.Controllers
                     productVM.Product.Image = fileName + extension;
 
                     _prodRepo.Add(productVM.Product);
-                    
+                    TempData[WC.Success] = "Товар успешно добавлен";
                 }
                 else
                 {
@@ -122,6 +122,7 @@ namespace HandMaster.Controllers
                         productVM.Product.Image = objFromDb.Image;
                     }
                     _prodRepo.Update(productVM.Product);
+                    TempData[WC.Success] = "Товар успешно отредактирован";
                 }
                 _prodRepo.Save();
                 return RedirectToAction("Index");
@@ -156,6 +157,8 @@ namespace HandMaster.Controllers
 
             _prodRepo.Remove(product);
             _prodRepo.Save();
+
+            TempData[WC.Success] = "Товар успешно удален";
             return RedirectToAction("Index");
         }
 

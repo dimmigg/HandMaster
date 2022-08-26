@@ -37,8 +37,10 @@ namespace HandMaster.Controllers
             {
                 _catRepo.Add(cat);
                 _catRepo.Save();
+                TempData[WC.Success] = "Категория успешно добавлена";
                 return RedirectToAction("Index");
             }
+            TempData[WC.Error] = "Произошла непредвиденная ошибка";
             return View(cat);
         }
 
@@ -60,8 +62,10 @@ namespace HandMaster.Controllers
             {
                 _catRepo.Update(cat);
                 _catRepo.Save();
+                TempData[WC.Success] = "Категория успешно отредактирована";
                 return RedirectToAction("Index");
             }
+            TempData[WC.Error] = "Произошла непредвиденная ошибка";
             return View(cat);
         }
 
@@ -83,6 +87,7 @@ namespace HandMaster.Controllers
                 return NotFound();
             _catRepo.Remove(cat);
             _catRepo.Save();
+            TempData[WC.Success] = "Категория успешно удалена";
             return RedirectToAction("Index");
         }
     }

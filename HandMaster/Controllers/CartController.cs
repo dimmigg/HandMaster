@@ -134,7 +134,7 @@ namespace HandMaster.Controllers
             _inqHRepo.Add(inquiryHeader);
             _inqHRepo.Save();
 
-            foreach(var prod in ProductUserVM.ProductList)
+            foreach (var prod in ProductUserVM.ProductList)
             {
                 InquiryDetail inquiryDetail = new InquiryDetail()
                 {
@@ -144,6 +144,8 @@ namespace HandMaster.Controllers
                 _inqDRepo.Add(inquiryDetail);               
             }
             _inqDRepo.Save();
+
+            TempData[WC.Success] = "Заказ успешно добавлен";
             return RedirectToAction(nameof(InquaryConfirmation));
         }
 
@@ -164,6 +166,7 @@ namespace HandMaster.Controllers
             shoppingCartsList.Remove(shoppingCartsList.FirstOrDefault(x => x.ProductId == id));
 
             HttpContext.Session.Set(WC.SessionCart, shoppingCartsList);
+            TempData[WC.Success] = "Товар удален из корзины";
             return RedirectToAction(nameof(Index));
         }
     }
