@@ -1,4 +1,8 @@
-﻿namespace HandMaster_Utility
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace HandMaster_Utility
 {
     public static class WC
     {
@@ -23,5 +27,16 @@
         public const string StatusShipped = "Shipped";
         public const string StatusCancelled = "Cancelled";
         public const string StatusRefunded = "Refunded";
+
+        public static readonly IEnumerable<string> listStatus = new ReadOnlyCollection<string>(     
+            new List<string>
+            {
+                StatusPending,
+                StatusApproved,
+                StatusProcess,
+                StatusShipped,
+                StatusCancelled,
+                StatusRefunded
+            });
     }
 }

@@ -18,9 +18,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="20.2.0.45" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\Order\" />
     <Folder Include="wwwroot\images\product\" />
   </ItemGroup>
 
