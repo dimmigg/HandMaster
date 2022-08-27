@@ -58,8 +58,8 @@
                                             <label>StreetAdress</label>
                                         </div>
                                         <div class="col-9">
-                                            <input asp-for="ApplicationUser.StreetAdress" type="text" class="form-control" />
-                                            <span asp-validation-for="ApplicationUser.StreetAdress" class="text-danger"></span>
+                                            <input asp-for="ApplicationUser.StreetAddress" type="text" class="form-control" />
+                                            <span asp-validation-for="ApplicationUser.StreetAddress" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="row my-1">
@@ -104,6 +104,8 @@
                                         {
                                             <input type="hidden" asp-for="@Model.ProductList[i].Id">
                                             <input type="hidden" asp-for="@Model.ProductList[i].Name">
+                                            <input type="hidden" asp-for="@Model.ProductList[i].Price">
+                                            <input type="hidden" asp-for="@Model.ProductList[i].TempSqFt">
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <div>
                                                     <h6 class="my-0">@Model.ProductList[i].Name</h6>

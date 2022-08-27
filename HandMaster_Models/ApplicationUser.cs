@@ -10,7 +10,7 @@ namespace HandMaster_Models
         public string FullName { get; set; }
 
         [NotMapped]
-        public string StreetAdress { get; set; }
+        public string StreetAddress { get; set; }
         [NotMapped]
         public string City { get; set; }
         [NotMapped]

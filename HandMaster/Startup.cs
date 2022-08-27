@@ -45,6 +45,8 @@ namespace HandMaster
             services.AddScoped<IInquiryHeaderRepository, InquiryHeaderRepository>();
             services.AddScoped<IInquiryDetailRepository, InquiryDetailRepository>();
             services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+            services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
+            services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddHttpContextAccessor();
             services.AddSession(options =>
             {
@@ -53,6 +55,13 @@ namespace HandMaster
                 options.Cookie.IsEssential = true;
             });
             services.AddHealthChecks();
+
+            services.AddAuthentication().AddFacebook(o =>
+            {
+                o.AppId = "843166183334705";
+                o.AppSecret = "6399ff46ea66ba322c832ab97d357fe7";
+            });
+
             services.AddControllersWithViews();
         }
 

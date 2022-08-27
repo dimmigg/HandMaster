@@ -27,15 +27,19 @@ namespace HandMaster.Controllers
         private readonly IInquiryDetailRepository _inqDRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IEmailSender _emailSender;
+        private readonly IOrderHeaderRepository _orderHRepo;
+        private readonly IOrderDetailRepository _orderDRepo;
         [BindProperty]
         public ProductUserVM ProductUserVM { get; set; }
-        public CartController(          
-            IWebHostEnvironment webHostEnvironment, 
+        public CartController(
+            IWebHostEnvironment webHostEnvironment,
             IEmailSender emailSender,
             IProductRepository prodRepo,
-            IInquiryHeaderRepository inqHRepo, 
+            IInquiryHeaderRepository inqHRepo,
             IInquiryDetailRepository inqDRepo,
-            IApplicationUserRepository userRepo)
+            IApplicationUserRepository userRepo,
+            IOrderHeaderRepository orderHRepo,
+            IOrderDetailRepository orderDRepo)
         {
             _prodRepo = prodRepo;
             _webHostEnvironment = webHostEnvironment;
@@ -43,11 +47,13 @@ namespace HandMaster.Controllers
             _inqHRepo = inqHRepo;
             _inqDRepo = inqDRepo;
             _userRepo = userRepo;
+            _orderHRepo = orderHRepo;
+            _orderDRepo = orderDRepo;
         }
         public IActionResult Index()
         {
             List<ShoppingCart> shoppingCartsList = new List<ShoppingCart>();
-            if(HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) != null
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart) != null
                 && HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WC.SessionCart).Count() > 0)
             {
                 shoppingCartsList = HttpContext.Session.Get<List<ShoppingCart>>(WC.SessionCart);
@@ -69,7 +75,7 @@ namespace HandMaster.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ActionName("Index" )]
+        [ActionName("Index")]
         public IActionResult IndexPost(IEnumerable<Product> prodList)
         {
             List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
@@ -88,9 +94,9 @@ namespace HandMaster.Controllers
         public IActionResult Summary()
         {
             ApplicationUser applicationUser;
-            if(User.IsInRole(WC.AdminRole))
+            if (User.IsInRole(WC.AdminRole))
             {
-                if(HttpContext.Session.Get<int>(WC.SessionInquiryId) != 0)
+                if (HttpContext.Session.Get<int>(WC.SessionInquiryId) != 0)
                 {
                     InquiryHeader inquiryHeader = _inqHRepo.FirstOrDefault(x => x.Id == HttpContext.Session.Get<int>(WC.SessionInquiryId));
                     applicationUser = new ApplicationUser()
@@ -112,7 +118,7 @@ namespace HandMaster.Controllers
                 applicationUser = _userRepo.FirstOrDefault(x => x.Id == claim.Value);
             }
 
-            
+
             //var userId = User.FindFirstValue(ClaimTypes.Name);
 
             List<ShoppingCart> shoppingCartsList = new List<ShoppingCart>();
@@ -130,7 +136,7 @@ namespace HandMaster.Controllers
                 ApplicationUser = applicationUser
             };
 
-            foreach(var cartObj in shoppingCartsList)
+            foreach (var cartObj in shoppingCartsList)
             {
                 Product prodTemp = _prodRepo.FirstOrDefault(x => x.Id == cartObj.ProductId);
                 prodTemp.TempSqFt = cartObj.SqFt;
@@ -147,62 +153,101 @@ namespace HandMaster.Controllers
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString()
+            if (User.IsInRole(WC.AdminRole))
+            {
+                OrderHeader orderHeader = new OrderHeader
+                {
+                    CreatedByUserId = claim.Value,
+                    FinalOrderTotal = ProductUserVM.ProductList.Sum(x => x.TempSqFt * x.Price),
+                    City = ProductUserVM.ApplicationUser.City,
+                    StreetAddress = ProductUserVM.ApplicationUser.StreetAddress,
+                    State = ProductUserVM.ApplicationUser.State,
+                    PostalCode = ProductUserVM.ApplicationUser.PostalCode,
+                    FullName = ProductUserVM.ApplicationUser.FullName,
+                    Email = ProductUserVM.ApplicationUser.Email,
+                    PhoneNumber = ProductUserVM.ApplicationUser.PhoneNumber,
+                    OrderDate = DateTime.Now,
+                    OrderStatus = WC.StatusPending
+                };
+                _orderHRepo.Add(orderHeader);
+                _orderHRepo.Save();
+
+                foreach (var prod in ProductUserVM.ProductList)
+                {
+                    OrderDetail orderDetail = new OrderDetail()
+                    {
+                        OrderHeaderId = orderHeader.Id,
+                        PricePerSqFt = prod.Price,
+                        Sqft = prod.TempSqFt,
+                        ProductId = prod.Id
+                    };
+                    _orderDRepo.Add(orderDetail);
+                }
+                _orderDRepo.Save();
+
+                return RedirectToAction(nameof(InquaryConfirmation), new { id = orderHeader.Id});
+            }
+            else
+            {
+                var pathToTemplate = _webHostEnvironment.WebRootPath + Path.DirectorySeparatorChar.ToString()
                 + "templates" + Path.DirectorySeparatorChar.ToString()
                 + "Inquiry.html";
-            var subject = "Новый заказ";
-            string htmlBody = "";
-            using(StreamReader sr = System.IO.File.OpenText(pathToTemplate))
-            {
-                htmlBody = sr.ReadToEnd();
-            }
-
-            StringBuilder productLisrSB = new StringBuilder();
-            foreach (var product in ProductUserVM.ProductList)
-            {
-                productLisrSB.Append($" - Name: {product.Name} <span style = 'font-size:14px;'> (ID: {product.Id})</span></br>");
-            }
-
-            string messageBody = string.Format(
-                htmlBody,
-                ProductUserVM.ApplicationUser.FullName,
-                ProductUserVM.ApplicationUser.Email,
-                ProductUserVM.ApplicationUser.PhoneNumber,
-                productLisrSB.ToString());
-
-            await _emailSender.SendEmailAsync(WC.EmailAdmin, subject, messageBody);
-
-            InquiryHeader inquiryHeader = new InquiryHeader()
-            {
-                ApplicationUserId = claim.Value,
-                FullName = ProductUserVM.ApplicationUser.FullName,
-                Email = ProductUserVM.ApplicationUser.Email,
-                PhoneNumber = ProductUserVM.ApplicationUser.PhoneNumber,
-                InquiryDate = DateTime.Now
-            };
-
-            _inqHRepo.Add(inquiryHeader);
-            _inqHRepo.Save();
-
-            foreach (var prod in ProductUserVM.ProductList)
-            {
-                InquiryDetail inquiryDetail = new InquiryDetail()
+                var subject = "Новый заказ";
+                string htmlBody = "";
+                using (StreamReader sr = System.IO.File.OpenText(pathToTemplate))
                 {
-                    InquiryHeaderId = inquiryHeader.Id,
-                    ProductId = prod.Id
-                };
-                _inqDRepo.Add(inquiryDetail);               
-            }
-            _inqDRepo.Save();
+                    htmlBody = sr.ReadToEnd();
+                }
 
-            TempData[WC.Success] = "Заказ успешно добавлен";
-            return RedirectToAction(nameof(InquaryConfirmation));
+                StringBuilder productLisrSB = new StringBuilder();
+                foreach (var product in ProductUserVM.ProductList)
+                {
+                    productLisrSB.Append($" - Name: {product.Name} <span style = 'font-size:14px;'> (ID: {product.Id})</span></br>");
+                }
+
+                string messageBody = string.Format(
+                    htmlBody,
+                    ProductUserVM.ApplicationUser.FullName,
+                    ProductUserVM.ApplicationUser.Email,
+                    ProductUserVM.ApplicationUser.PhoneNumber,
+                    productLisrSB.ToString());
+
+                await _emailSender.SendEmailAsync(WC.EmailAdmin, subject, messageBody);
+
+                InquiryHeader inquiryHeader = new InquiryHeader()
+                {
+                    ApplicationUserId = claim.Value,
+                    FullName = ProductUserVM.ApplicationUser.FullName,
+                    Email = ProductUserVM.ApplicationUser.Email,
+                    PhoneNumber = ProductUserVM.ApplicationUser.PhoneNumber,
+                    InquiryDate = DateTime.Now
+                };
+
+                _inqHRepo.Add(inquiryHeader);
+                _inqHRepo.Save();
+
+                foreach (var prod in ProductUserVM.ProductList)
+                {
+                    InquiryDetail inquiryDetail = new InquiryDetail()
+                    {
+                        InquiryHeaderId = inquiryHeader.Id,
+                        ProductId = prod.Id
+                    };
+                    _inqDRepo.Add(inquiryDetail);
+                }
+                _inqDRepo.Save();
+
+                TempData[WC.Success] = "Заказ успешно добавлен";
+                return RedirectToAction(nameof(InquaryConfirmation));
+            }
+
         }
 
-        public IActionResult InquaryConfirmation()
+        public IActionResult InquaryConfirmation(int id = 0)
         {
+            OrderHeader orderHeader = _orderHRepo.FirstOrDefault(x => x.Id == id);
             HttpContext.Session.Clear();
-            return View();
+            return View(orderHeader);
         }
 
         public IActionResult Remove(int id)
@@ -225,7 +270,7 @@ namespace HandMaster.Controllers
         public IActionResult UpdateCart(IEnumerable<Product> prodList)
         {
             List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
-            foreach(Product prod in prodList)
+            foreach (Product prod in prodList)
             {
                 shoppingCarts.Add(new ShoppingCart()
                 {
@@ -235,6 +280,12 @@ namespace HandMaster.Controllers
             }
             HttpContext.Session.Set(WC.SessionCart, shoppingCarts);
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Clear()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
