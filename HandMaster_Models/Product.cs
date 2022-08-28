@@ -30,7 +30,7 @@ namespace HandMaster_Models
         public virtual ApplicationType ApplicationType { get; set; }
 
         [NotMapped]
-        [Range(1, 10000)]
+        [Range(1, 10000, ErrorMessage = "Кол-во товара должно быть больше нуля")]
         public int TempSqFt { get; set; }
     }
 }

@@ -120,11 +120,16 @@ namespace HandMaster.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        if (!User.IsInRole(WC.AdminRole))
-                            await _signInManager.SignInAsync(user, isPersistent: false);
-                        else
+                        if (User.IsInRole(WC.AdminRole))
+                        {
+                            TempData[WC.Success] = user.FullName + " успешно зарегистрирован";
                             return RedirectToAction("Index");
-                        return LocalRedirect(returnUrl);
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }                        
                     }
                 }
                 foreach (var error in result.Errors)

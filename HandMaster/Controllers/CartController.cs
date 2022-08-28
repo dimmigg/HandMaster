@@ -167,7 +167,7 @@ namespace HandMaster.Controllers
                     Email = ProductUserVM.ApplicationUser.Email,
                     PhoneNumber = ProductUserVM.ApplicationUser.PhoneNumber,
                     OrderDate = DateTime.Now,
-                    OrderStatus = WC.StatusPending
+                    OrderStatus = WC.StatusApproved
                 };
                 _orderHRepo.Add(orderHeader);
                 _orderHRepo.Save();
